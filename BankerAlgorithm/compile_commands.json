@@ -1,0 +1,24 @@
+[
+    {
+        "arguments": [
+            "c++", 
+            "-c", 
+            "-o", 
+            "main.o", 
+            "main.cpp"
+        ], 
+        "directory": "/home/leon/.Programming/c-cpp/BankerAlgorithm", 
+        "file": "main.cpp"
+    }, 
+    {
+        "arguments": [
+            "c++", 
+            "-c", 
+            "-o", 
+            "Resource.o", 
+            "Resource.cpp"
+        ], 
+        "directory": "/home/leon/.Programming/c-cpp/BankerAlgorithm", 
+        "file": "Resource.cpp"
+    }
+]
