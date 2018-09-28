@@ -94,6 +94,7 @@ bool safety_algorithm(Resource total_res,  Process* ps, int p_num)
 				flag = true;
 				total_res = total_res + ps[i].Res_held;
 				Serviced[i] = true;
+				std::cout << "P[" << i << "]" << std::endl;
 			}
 		}
 		if(!flag)
