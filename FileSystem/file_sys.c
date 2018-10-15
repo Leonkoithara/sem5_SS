@@ -74,6 +74,8 @@ void main()
 			case 7: scanf("%s", tmp);
 					if(find_rec(tmp, pwd))
 						printf("Found\n");
+					else
+						printf("Not Found\n");
 					break;
 			case 8: exit(0);
 					break;
@@ -201,7 +203,7 @@ file* find(char *name, file *search_dir)
 }
 file* find_rec(char *name, file *search_dir)
 { 
-	file *temp;
+	file *temp, *temp2;
  
 	temp = search_dir->first_child;
 
@@ -209,8 +211,9 @@ file* find_rec(char *name, file *search_dir)
 	{ 
 		if(!strcmp(temp->node_name, name))
 			return temp;
-		if(temp->node_type == 1)
-			find_rec(name, temp->first_child);
+		else if(temp->node_type == 1)
+			if(temp2 = find_rec(name, temp))
+				return temp2;
 		temp = temp->adjecent_node;
 	}
 	return 0;
