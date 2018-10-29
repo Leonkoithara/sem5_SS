@@ -31,11 +31,13 @@ void* producer(void* arg)
 			if(i >= 5)
 			{
 				available++;
-				i = 0;
+//				i = 0;
 			}
 
 			sem_post(&mutex);
 		}
+		if(i >= 5)
+			return NULL;
 	}
 }
 
@@ -57,11 +59,13 @@ void* consumer(void* arg)
 			if(i < 0)
 			{
 				available--;
-				i = 4;
+//				i = 4;
 			}
 
 			sem_post(&mutex);
 		}
+		if(i < 0)
+			return NULL;
 	}
 }
 
