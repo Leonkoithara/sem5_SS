@@ -1,3 +1,4 @@
+#include <math.h> 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,11 +6,30 @@
 int start_addr; 
 int locctr = 0;
 
+int to_int(char *hexadecimalnum)
+{ 
+	int len, decimalnum = 0, i, num = 0;
+
+	len = strlen(hexadecimalnum);
+
+	for(i = 0;i < len;i++)
+	{ 
+		if(hexadecimalnum[i] > 58)
+			num = hexadecimalnum[i] - 'A' + 10;
+		else
+			num = hexadecimalnum[i] - '0';
+ 
+		decimalnum += pow(16, len-i-1) * num;
+	}
+
+	return decimalnum;
+}
+
 void process(char*, char*, char*);
  
 int main()
 { 
-	FILE *fp, *ifile;
+	FILE *fp;
 	char label[10], opcode[10], operand[10], assembler_src[20], c;
 
 	int i;
@@ -18,7 +38,6 @@ int main()
 	scanf("%s", assembler_src);
  
 	fp = fopen(assembler_src, "r");
-	ifile = fopen("intermediate.txt", "w");
 
 	while((c = fgetc(fp)) != EOF)
 	{ 
@@ -61,33 +80,41 @@ int main()
 		operand[i] = '\0';
 
 		process(label, opcode, operand);
-		fprintf(ifile, "%s\t%s\t%s\n", label, opcode, operand);
 
 		label[0] = '\0';
 	}
 
 	fclose(fp);
-	fclose(ifile);
 
 	printf("Program length: %d\n", locctr-start_addr);
 }
 
 void process(char *label, char *opcode, char *operand)
 { 
-	FILE *optab, *symtab;
+	FILE *optab, *symtab, *ifile;
 
-	char start[] = "START", temp[30];
+	char start[] = "START", end[] = "END", temp[30];
    	char ass_direc[4][20] = {"WORD", "RESW", "RESB", "BYTE"}; 
-	char op_frm_tab[20];
+	char op_frm_tab[20], code[10];
 
-	int code, i = 0, flag = 0, temp2;
+	int i = 0, flag = 0, temp2;
 
-	if(!strcmp(opcode, start) && locctr == 0)
+	if(!strcmp(opcode, start))
 	{
 		symtab = fopen("symtab.txt", "w");
-		locctr = atoi(operand);
+		ifile = fopen("intermediate.txt", "w");
+		temp2 = to_int(operand);
+		locctr = temp2;
 		start_addr = locctr;
+		fprintf(ifile, "%s\t%s\t%d\n", label, opcode, locctr);
 		fclose(symtab);
+		return;
+	}
+	if(!strcmp(opcode, end))
+	{ 
+		fprintf(ifile, "%s\t%s\t%s", label, opcode, operand);
+		fclose(ifile);
+
 		return;
 	}
 
@@ -102,11 +129,12 @@ void process(char *label, char *opcode, char *operand)
 			return;
 		}
 	}	
-	fprintf(symtab, "%s %d ", label, locctr);
+	if(label[0] != '\0') 
+		fprintf(symtab, "%s %d\n", label, locctr);
 
 	while(1)
 	{ 
-		fscanf(optab, "%s %d", op_frm_tab, &code);
+		fscanf(optab, "%s %s", op_frm_tab, code);
 
 		if(i < 4)
 		{ 
@@ -140,12 +168,20 @@ void process(char *label, char *opcode, char *operand)
 				break;
 			case 3:								//BYTE
 				locctr += strlen(operand) - 3; 
+				operand[strlen(operand)-1] = '\0';
 				break;
 			default:
 				printf("Error: Invalid Operation Code\n");
 		}
 	}
 
+	if(!flag)
+		fprintf(ifile, "%d\t%s\t%s\n", locctr, opcode, operand);
+	else if(flag && i == 0)
+		fprintf(ifile, "%d\t%s\t%s\n", locctr, opcode, operand);
+	else if(flag && i == 3)
+		fprintf(ifile, "%d\t%s\t%s\n", locctr, opcode, operand+2);
+	 
 	fclose(optab);
 	fclose(symtab);
 }
